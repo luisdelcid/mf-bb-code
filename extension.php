@@ -63,14 +63,6 @@ if(!class_exists('MF_BB_Code')){
         }
 
         /**
-         * @return void
-         */
-        private function prefix($str = ''){
-            $prefix = 'bb_additional_code';
-            return __str_prefix($str, $prefix);
-        }
-
-        /**
     	 * @return string
     	 */
         private function replace_type($subject = '', $type = ''){
@@ -82,14 +74,6 @@ if(!class_exists('MF_BB_Code')){
             $replace = $types[$type]['long'];
             $subject = str_replace($search, $replace, $subject);
             return $subject;
-        }
-
-        /**
-         * @return void
-         */
-        private function slug($str = ''){
-            $slug = 'bb-additional-code';
-            return __str_slug($str, $slug);
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,7 +93,7 @@ if(!class_exists('MF_BB_Code')){
             $types = $this->get_types();
             $title = $types[$type]['long'];
             $title = sprintf(_x('%s Settings', '%s stands for custom branded "Page Builder" name.', 'fl-builder'), $title);
-            add_meta_box('fl-theme-builder-' . $this->slug('mb'), $title, [$this, '_meta_box'], 'fl-theme-layout', 'normal', 'high');
+            add_meta_box('fl-theme-builder-' . $this->str_slug('mb'), $title, [$this, '_meta_box'], 'fl-theme-layout', 'normal', 'high');
         }
 
         /**
@@ -128,7 +112,7 @@ if(!class_exists('MF_BB_Code')){
             if(is_wp_error($ace)){
                 return;
             }
-            $handle = $this->slug();
+            $handle = $this->str_slug();
             $file = plugin_dir_path(__FILE__) . 'extension.js';
             $l10n = [
                 'is_mobile' => wp_is_mobile(),
@@ -211,7 +195,7 @@ if(!class_exists('MF_BB_Code')){
             $types = $this->get_types();
             $setting_prefix = 'additional_' . $type;
             $setting_slug = 'additional-' . $type;
-            $key = '_' . $this->prefix();
+            $key = '_' . $this->str_prefix();
             $code = get_post_meta($post->ID, $key, true); ?>
             <table class="fl-mb-table widefat">
                 <tr class="fl-mb-row">
@@ -222,7 +206,7 @@ if(!class_exists('MF_BB_Code')){
                         <i class="fl-mb-row-heading-help dashicons dashicons-editor-help" title="<?php echo $types[$type]['desc']; ?>"></i>
                     </td>
                     <td class="fl-mb-row-content">
-                        <textarea id="<?php echo $this->slug(); ?>" data-mode="<?php echo $mode; ?>" name="<?php echo $this->prefix(); ?>" rows="12" style="width: 100%;"><?php echo $code; ?></textarea>
+                        <textarea id="<?php echo $this->str_slug(); ?>" data-mode="<?php echo $mode; ?>" name="<?php echo $this->str_prefix(); ?>" rows="12" style="width: 100%;"><?php echo $code; ?></textarea>
                     </td>
                 </tr>
             </table><?php
@@ -243,14 +227,14 @@ if(!class_exists('MF_BB_Code')){
             }
             //current_user_can( 'unfiltered_html' )
             //__( 'The current user can post unfiltered HTML markup and JavaScript.' )
-            $key = '_' . $this->prefix();
+            $key = '_' . $this->str_prefix();
             $post_id  = absint($_POST['post_ID']);
             $type = sanitize_text_field($_POST['fl-theme-layout-type']);
             if(!$this->is_layout_supported($type)){
                 delete_post_meta($post_id, $key);
                 return;
             }
-            $code = trim($_POST[$this->prefix()]);
+            $code = trim($_POST[$this->str_prefix()]);
             update_post_meta($post_id, $key, $code);
         }
 
@@ -305,7 +289,7 @@ if(!class_exists('MF_BB_Code')){
                 return;
             }
             $code = '';
-            $key = '_' . $this->prefix();
+            $key = '_' . $this->str_prefix();
             if($css){
                 foreach($css as $part){
                     $code .= get_post_meta($part['id'], $key, true) . "\n";
@@ -345,7 +329,7 @@ if(!class_exists('MF_BB_Code')){
                 return;
             }
             $code = '';
-            $key = '_' . $this->prefix();
+            $key = '_' . $this->str_prefix();
             foreach($javascript as $part){
                 $code .= get_post_meta($part['id'], $key, true) . "\n";
             }

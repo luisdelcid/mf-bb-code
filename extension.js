@@ -12,7 +12,7 @@ var mf_bb_code = class extends __base {
             if(_.isUndefined(ace)){
                 return;
             }
-            $this.edit($this.slug());
+            $this.edit($this.str_slug());
         });
 	}
 
@@ -37,7 +37,7 @@ var mf_bb_code = class extends __base {
         editor_height = jQuery('#' + id).height();
         editor_rows = jQuery('#' + id).attr('rows');
         jQuery('#' + id).hide();
-        jQuery('<div class="' + $this.slug('editor-container') + '" id="' + id + '-editor-container"><div class="' + $this.slug('editor') + '" id="' + id + '-editor"></div></div>').insertBefore('#' + id);
+        jQuery('<div class="' + $this.str_slug('editor-container') + '" id="' + id + '-editor-container"><div class="' + $this.str_slug('editor') + '" id="' + id + '-editor"></div></div>').insertBefore('#' + id);
         editor = ace.edit(id + '-editor');
         options.enableBasicAutocompletion = true;
         options.enableLiveAutocompletion = true;
