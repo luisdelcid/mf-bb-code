@@ -19,8 +19,7 @@ if(!class_exists('MF_BB_Code')){
             add_action('manage_fl-theme-layout_posts_custom_column', [$this, '_column_start'], 9, 2); // Runs before FLThemeBuilderLayoutAdminList::manage_column_content().
             add_action('manage_fl-theme-layout_posts_custom_column', [$this, '_column_end'], 11, 2); // Runs after FLThemeBuilderLayoutAdminList::manage_column_content().
             add_action('save_post', [$this, '_save'], 9); // Runs before FLThemeBuilderLayoutAdminEdit::save().
-            add_action('wp_head', [$this, '_wp_head'], 11);
-            add_action('wp_print_footer_scripts', [$this, '_wp_print_footer_scripts'], 11); // Runs after _wp_footer_scripts().
+            add_action('template_redirect', [$this, '_template_redirect'], 9); // Runs before FLThemeBuilderLayoutRenderer::setup_part_hooks().
         }
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,15 +39,15 @@ if(!class_exists('MF_BB_Code')){
                     'long' => _x('JavaScript Code', 'Customizer section title.', 'fl-automator'),
                     'short' => 'JavaScript',
                 ],
+                'head' => [
+                    'desc' => str_replace('&lt;head&gt;', 'head', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
+                    'long' => _x('Head Code', 'Customizer section title.', 'fl-automator'),
+                    'short' => _x('Header', 'Customizer panel title.', 'fl-automator'),
+                ],
                 'less' => [
                     'desc' => str_replace('CSS', 'Less', str_replace('&lt;style&gt;', 'style', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator'))),
                     'long' => str_replace('CSS', 'Less', _x('CSS Code', 'Customizer section title.', 'fl-automator')),
                     'short' => 'Less',
-                ],
-                'metadata' => [
-                    'desc' => str_replace('&lt;head&gt;', 'head', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
-                    'long' => _x('Head Code', 'Customizer section title.', 'fl-automator'),
-                    'short' => _x('Header', 'Customizer panel title.', 'fl-automator'),
                 ],
             ];
             return $types;
@@ -168,7 +167,6 @@ if(!class_exists('MF_BB_Code')){
                 return;
             }
             $select->innertext .= '<optgroup label="' . _x('Code', 'Customizer panel title.', 'fl-automator') . '">';
-            //$select->innertext .= '<optgroup label="' . __('Code') . '">';
             $types = $this->get_types();
             foreach($types as $value => $type){
                 $select->innertext .= '<option value="' . $value . '">' . $type['short'] . '</option>';
@@ -189,7 +187,7 @@ if(!class_exists('MF_BB_Code')){
                 return;
             }
             $mode = $type;
-            if($mode === 'metadata'){
+            if($mode === 'head'){
                 $mode = 'html';
             }
             $types = $this->get_types();
@@ -225,8 +223,6 @@ if(!class_exists('MF_BB_Code')){
             if(!wp_verify_nonce($_POST['fl-theme-builder-nonce'], 'fl-theme-builder')){
                 return;
             }
-            //current_user_can( 'unfiltered_html' )
-            //__( 'The current user can post unfiltered HTML markup and JavaScript.' )
             $key = '_' . $this->str_prefix();
             $post_id  = absint($_POST['post_ID']);
             $type = sanitize_text_field($_POST['fl-theme-layout-type']);
@@ -281,60 +277,47 @@ if(!class_exists('MF_BB_Code')){
     	/**
     	 * @return void
     	 */
-    	public function _wp_head(){
+    	public function _template_redirect(){
             $css = \FLThemeBuilderLayoutData::get_current_page_layouts('css');
+            $head = \FLThemeBuilderLayoutData::get_current_page_layouts('head');
             $less = \FLThemeBuilderLayoutData::get_current_page_layouts('less');
-            $metadata = \FLThemeBuilderLayoutData::get_current_page_layouts('metadata');
-            if(!$css and !$less and !$metadata){
-                return;
-            }
-            $code = '';
-            $key = '_' . $this->str_prefix();
-            if($css){
-                foreach($css as $part){
-                    $code .= get_post_meta($part['id'], $key, true) . "\n";
-                }
-            }
-            /*if($less){
-                foreach($less as $part){
-                    $tmp = get_post_meta($part['id'], $key, true);
-                    $tmp = __compile_less($tmp);
-                    if(!is_wp_error($tmp)){
-                        $code .= $tmp . "\n";
+            if($css or $head or $less){
+                add_action('wp_head', function() use ($css, $head, $less){
+                    $code = '';
+                    $key = '_' . $this->str_prefix();
+                    if($css){
+                        foreach($css as $part){
+                            $code .= get_post_meta($part['id'], $key, true) . "\n";
+                        }
                     }
-                }
-            }*/
-            if($less){
-                foreach($less as $part){
-                    $code .= get_post_meta($part['id'], $key, true) . "\n";
-                }
+                    if($less){
+                        foreach($less as $part){
+                            $code .= get_post_meta($part['id'], $key, true) . "\n";
+                        }
+                    }
+                    $code = __minify_css($code);
+                    echo '<style>' . $code . '</style>';
+                    $code = '';
+                    if($head){
+                        foreach($head as $part){
+                            $code .= get_post_meta($part['id'], $key, true) . "\n";
+                        }
+                    }
+                    echo $code;
+                }, 11);
             }
-            $code = __minify_css($code);
-            echo '<style>' . $code . '</style>';
-            $code = '';
-            if($metadata){
-                foreach($metadata as $part){
-                    $code .= get_post_meta($part['id'], $key, true) . "\n";
-                }
-            }
-            echo $code;
-    	}
-
-    	/**
-    	 * @return void
-    	 */
-    	public function _wp_print_footer_scripts(){
             $javascript = \FLThemeBuilderLayoutData::get_current_page_layouts('javascript');
-            if(!$javascript){
-                return;
+            if($javascript){
+                add_action('wp_print_footer_scripts', function() use ($javascript){
+                    $code = '';
+                    $key = '_' . $this->str_prefix();
+                    foreach($javascript as $part){
+                        $code .= get_post_meta($part['id'], $key, true) . "\n";
+                    }
+                    $code = __minify_js($code);
+                    echo '<script>' . $code . '</script>';
+                }, 11);
             }
-            $code = '';
-            $key = '_' . $this->str_prefix();
-            foreach($javascript as $part){
-                $code .= get_post_meta($part['id'], $key, true) . "\n";
-            }
-            $code = __minify_js($code);
-            echo '<script>' . $code . '</script>';
     	}
 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
