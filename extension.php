@@ -31,23 +31,19 @@ if(!class_exists('MF_BB_Code')){
             $types = [
                 'css' => [
                     'desc' => str_replace('&lt;style&gt;', 'style', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator')),
-                    'long' => _x('CSS Code', 'Customizer section title.', 'fl-automator'),
-                    'short' => 'CSS',
+                    'name' => _x('CSS Code', 'Customizer section title.', 'fl-automator'),
                 ],
                 'javascript' => [
                     'desc' => str_replace('&lt;script&gt;', 'script', __('JavaScript entered in the box below will be rendered within &lt;script&gt; tags.', 'fl-automator')),
-                    'long' => _x('JavaScript Code', 'Customizer section title.', 'fl-automator'),
-                    'short' => 'JavaScript',
-                ],
-                'head' => [
-                    'desc' => str_replace('&lt;head&gt;', 'head', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
-                    'long' => _x('Head Code', 'Customizer section title.', 'fl-automator'),
-                    'short' => _x('Header', 'Customizer panel title.', 'fl-automator'),
+                    'name' => _x('JavaScript Code', 'Customizer section title.', 'fl-automator'),
                 ],
                 'less' => [
                     'desc' => str_replace('CSS', 'Less', str_replace('&lt;style&gt;', 'style', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator'))),
-                    'long' => str_replace('CSS', 'Less', _x('CSS Code', 'Customizer section title.', 'fl-automator')),
-                    'short' => 'Less',
+                    'name' => str_replace('CSS', 'Less', _x('CSS Code', 'Customizer section title.', 'fl-automator')),
+                ],
+                'head' => [
+                    'desc' => str_replace('&lt;head&gt;', 'head', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
+                    'name' => x('Head Code', 'Customizer section title.', 'fl-automator'),
                 ],
             ];
             return $types;
@@ -70,7 +66,7 @@ if(!class_exists('MF_BB_Code')){
             }
             $types = $this->get_types();
             $search = ucwords($type);
-            $replace = $types[$type]['long'];
+            $replace = $types[$type]['name'];
             $subject = str_replace($search, $replace, $subject);
             return $subject;
         }
@@ -90,8 +86,8 @@ if(!class_exists('MF_BB_Code')){
             remove_meta_box('fl-theme-builder-settings', 'fl-theme-layout', 'normal');
             add_meta_box('fl-theme-builder-settings', __('Themer Layout Settings', 'bb-theme-builder'), [$this, '_settings_meta_box'], 'fl-theme-layout', 'normal', 'high');
             $types = $this->get_types();
-            $title = $types[$type]['long'];
-            $title = sprintf(_x('%s Settings', '%s stands for custom branded "Page Builder" name.', 'fl-builder'), $title);
+            $name = $types[$type]['name'];
+            $title = sprintf(_x('%s Settings', '%s stands for custom branded "Page Builder" name.', 'fl-builder'), $name);
             add_meta_box('fl-theme-builder-' . $this->str_slug('mb'), $title, [$this, '_meta_box'], 'fl-theme-layout', 'normal', 'high');
         }
 
@@ -169,7 +165,7 @@ if(!class_exists('MF_BB_Code')){
             $select->innertext .= '<optgroup label="' . _x('Code', 'Customizer panel title.', 'fl-automator') . '">';
             $types = $this->get_types();
             foreach($types as $value => $type){
-                $select->innertext .= '<option value="' . $value . '">' . $type['short'] . '</option>';
+                $select->innertext .= '<option value="' . $value . '">' . $type['name'] . '</option>';
             }
             $select->innertext .= '</optgroup>';
             $output = $html->save();
@@ -183,7 +179,7 @@ if(!class_exists('MF_BB_Code')){
             global $post;
             $type = get_post_meta($post->ID, '_fl_theme_layout_type', true);
             if(!$this->is_layout_supported($type)){
-                echo '<strong style="color:#a00;">(' . __('Unsupported', 'bb-theme-builder') . ')</strong>';
+                echo '<strong style="color: #a00;">' . __('Unsupported', 'bb-theme-builder') . '</strong>';
                 return;
             }
             $mode = $type;
@@ -198,10 +194,8 @@ if(!class_exists('MF_BB_Code')){
             <table class="fl-mb-table widefat">
                 <tr class="fl-mb-row">
                     <td  class="fl-mb-row-heading">
-                        <label><?php
-                            echo _x('Code', 'Customizer panel title.', 'fl-automator'); ?>
-                        </label>
-                        <i class="fl-mb-row-heading-help dashicons dashicons-editor-help" title="<?php echo $types[$type]['desc']; ?>"></i>
+                        <label><?php _ex('Code', 'Customizer panel title.', 'fl-automator'); ?></label>
+                        <i class="fl-mb-row-heading-help dashicons dashicons-editor-help" title="<?php esc_html_e($types[$type]['desc']); ?>"></i>
                     </td>
                     <td class="fl-mb-row-content">
                         <textarea id="<?php echo $this->str_slug(); ?>" data-mode="<?php echo $mode; ?>" name="<?php echo $this->str_prefix(); ?>" rows="12" style="width: 100%;"><?php echo $code; ?></textarea>
@@ -279,9 +273,9 @@ if(!class_exists('MF_BB_Code')){
     	 */
     	public function _template_redirect(){
             $css = \FLThemeBuilderLayoutData::get_current_page_layouts('css');
-            $head = \FLThemeBuilderLayoutData::get_current_page_layouts('head');
             $less = \FLThemeBuilderLayoutData::get_current_page_layouts('less');
-            if($css or $head or $less){
+            $head = \FLThemeBuilderLayoutData::get_current_page_layouts('head');
+            if($css or $less or $head){
                 add_action('wp_head', function() use ($css, $head, $less){
                     $code = '';
                     $key = '_' . $this->str_prefix();
