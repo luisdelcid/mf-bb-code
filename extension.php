@@ -43,7 +43,7 @@ if(!class_exists('MF_BB_Code')){
                 ],
                 'head' => [
                     'desc' => str_replace('&lt;head&gt;', 'head', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
-                    'name' => x('Head Code', 'Customizer section title.', 'fl-automator'),
+                    'name' => _x('Head Code', 'Customizer section title.', 'fl-automator'),
                 ],
             ];
             return $types;
