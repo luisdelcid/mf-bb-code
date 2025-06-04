@@ -198,7 +198,7 @@ if(!class_exists('MF_BB_Code')){
                         <i class="fl-mb-row-heading-help dashicons dashicons-editor-help" title="<?php esc_html_e($types[$type]['desc']); ?>"></i>
                     </td>
                     <td class="fl-mb-row-content">
-                        <textarea id="<?php echo $this->str_slug(); ?>" data-mode="<?php echo $mode; ?>" name="<?php echo $this->str_prefix(); ?>" rows="12" style="width: 100%;"><?php echo $code; ?></textarea>
+                        <textarea id="<?php echo $this->str_slug(); ?>" data-mode="<?php echo $mode; ?>" name="<?php echo $this->str_prefix(); ?>" rows="18" style="width: 100%;"><?php echo $code; ?></textarea>
                     </td>
                 </tr>
             </table><?php
