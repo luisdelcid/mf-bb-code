@@ -30,19 +30,19 @@ if(!class_exists('MF_BB_Code')){
         private function get_types(){
             $types = [
                 'css' => [
-                    'desc' => str_replace('&lt;style&gt;', 'style', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator')),
+                    'desc' => str_replace('&lt;style&gt;', '&laquo;style&raquo;', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator')),
                     'name' => _x('CSS Code', 'Customizer section title.', 'fl-automator'),
                 ],
                 'javascript' => [
-                    'desc' => str_replace('&lt;script&gt;', 'script', __('JavaScript entered in the box below will be rendered within &lt;script&gt; tags.', 'fl-automator')),
+                    'desc' => str_replace('&lt;script&gt;', '&laquo;script&raquo;', __('JavaScript entered in the box below will be rendered within &lt;script&gt; tags.', 'fl-automator')),
                     'name' => _x('JavaScript Code', 'Customizer section title.', 'fl-automator'),
                 ],
                 'less' => [
-                    'desc' => str_replace('CSS', 'Less', str_replace('&lt;style&gt;', 'style', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator'))),
+                    'desc' => str_replace('CSS', 'Less', str_replace('&lt;style&gt;', '&laquo;style&raquo;', __('CSS entered in the box below will be rendered within &lt;style&gt; tags.', 'fl-automator'))),
                     'name' => str_replace('CSS', 'Less', _x('CSS Code', 'Customizer section title.', 'fl-automator')),
                 ],
                 'head' => [
-                    'desc' => str_replace('&lt;head&gt;', 'head', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
+                    'desc' => str_replace('&lt;head&gt;', '&laquo;head&raquo;', __('Code entered in the box below will be rendered within the page &lt;head&gt; tag.', 'fl-automator')),
                     'name' => _x('Head Code', 'Customizer section title.', 'fl-automator'),
                 ],
             ];
